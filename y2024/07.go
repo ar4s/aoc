@@ -11,11 +11,31 @@ import (
 	"github.com/samber/lo"
 )
 
-func NewPuzzle_07() *types.Puzzle {
-	type Line struct {
-		Target int
-		Chunks []int
+type Line struct {
+	Target int
+	Chunks []int
+}
+
+type Operation func(int, int) int
+
+func calc(line Line, operations []Operation, value int, index int) bool {
+	if index == len(line.Chunks) {
+		return value == line.Target
 	}
+	if value > line.Target {
+		return false
+	}
+	right := line.Chunks[index]
+	for _, op := range operations {
+		c := op(value, right)
+		if calc(line, operations, c, index+1) {
+			return true
+		}
+	}
+	return false
+}
+
+func NewPuzzle_07() *types.Puzzle {
 	day := 7
 
 	var parseLine = func(line string) Line {
@@ -36,7 +56,6 @@ func NewPuzzle_07() *types.Puzzle {
 			Chunks: chunks,
 		}
 	}
-	type Operation func(int, int) int
 
 	var add = func(a, b int) int {
 		return a + b
@@ -48,6 +67,12 @@ func NewPuzzle_07() *types.Puzzle {
 		l := math.Log10(float64(b))
 		return a*(int(math.Pow10(int(l)+1))) + b
 	}
+
+	var aimToTargetRec = func(line Line, operations []Operation) bool {
+		r := calc(line, operations, line.Chunks[0], 1)
+		return r
+	}
+
 	var aimToTarget = func(line Line, operations []Operation) int {
 		permutationSize := len(line.Chunks) - 1
 		permutations := iterium.Product(operations, permutationSize)
@@ -70,6 +95,7 @@ func NewPuzzle_07() *types.Puzzle {
 			}
 		}
 	}
+	_ = aimToTarget
 
 	return &types.Puzzle{
 		ExampleA:         Example(day),
@@ -79,11 +105,13 @@ func NewPuzzle_07() *types.Puzzle {
 			parsed := lo.Map(lines, func(line string, _ int) Line {
 				return parseLine(line)
 			})
-			operations := []Operation{}
+			operations := []Operation{add, mul}
 
 			sum := 0
 			for _, line := range parsed {
-				sum += aimToTarget(line, operations)
+				if aimToTargetRec(line, operations) {
+					sum += line.Target
+				}
 			}
 			return sum
 		},
@@ -99,7 +127,9 @@ func NewPuzzle_07() *types.Puzzle {
 
 			sum := 0
 			for _, line := range parsed {
-				sum += aimToTarget(line, operations)
+				if aimToTargetRec(line, operations) {
+					sum += line.Target
+				}
 			}
 			return sum
 		},
