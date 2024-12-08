@@ -58,9 +58,9 @@ func NewPuzzle_04() *types.Puzzle {
 	// }
 
 	return &types.Puzzle{
-		ExampleA:         Example(day),
+		Example:          Example(day),
 		ExampleAExpected: 18,
-		InputA:           Input(day),
+		Input:            Input(day),
 		SolutionA: func(lines []string) int {
 			dimension := len(lines[0])
 			fmt.Println(dimension)
@@ -70,9 +70,7 @@ func NewPuzzle_04() *types.Puzzle {
 			return countXMASOccurrences(r, "XMAS")
 		},
 
-		ExampleB:         Example(day),
 		ExampleBExpected: 9,
-		InputB:           Input(day),
 		SolutionB: func(lines []string) int {
 			type Cord struct {
 				X int

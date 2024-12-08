@@ -54,9 +54,9 @@ func NewPuzzle_03() *types.Puzzle {
 	}
 
 	return &types.Puzzle{
-		ExampleA:         Example(day),
+		Example:          Example(day),
 		ExampleAExpected: 161,
-		InputA:           Input(day),
+		Input:            Input(day),
 		SolutionA: func(lines []string) int {
 			parsed := lo.Map(lines, func(line string, _ int) int {
 				return parseLine(line)
@@ -65,9 +65,7 @@ func NewPuzzle_03() *types.Puzzle {
 			return sum
 		},
 
-		ExampleB:         Example(day),
 		ExampleBExpected: 48,
-		InputB:           Input(day),
 		SolutionB: func(lines []string) int {
 			memory := strings.Join(lines, "")
 			return parseLineB(memory)

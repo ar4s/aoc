@@ -7,16 +7,14 @@ import (
 )
 
 type Puzzle struct {
-	ExampleA         string
+	Example string
+	Input   string
+
 	ExampleAExpected int
 	SolutionA        func([]string) int
 
-	ExampleB         string
 	ExampleBExpected int
 	SolutionB        func([]string) int
-
-	InputA string
-	InputB string
 }
 
 func SplitLines(input string) []string {
@@ -26,17 +24,17 @@ func SplitLines(input string) []string {
 }
 
 func (p *Puzzle) RunExampleA() int {
-	return p.SolutionA(SplitLines(p.ExampleA))
+	return p.SolutionA(SplitLines(p.Example))
 }
 
 func (p *Puzzle) RunExampleB() int {
-	return p.SolutionB(SplitLines(p.ExampleB))
+	return p.SolutionB(SplitLines(p.Example))
 }
 
 func (p *Puzzle) RunSolutionA() int {
-	return p.SolutionA(SplitLines(p.InputA))
+	return p.SolutionA(SplitLines(p.Input))
 }
 
 func (p *Puzzle) RunSolutionB() int {
-	return p.SolutionB(SplitLines(p.InputB))
+	return p.SolutionB(SplitLines(p.Input))
 }

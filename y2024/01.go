@@ -20,9 +20,9 @@ func NewPuzzle_01() *types.Puzzle {
 	}
 
 	return &types.Puzzle{
-		ExampleA:         Example(day),
+		Example:          Example(day),
+		Input:            Input(day),
 		ExampleAExpected: 11,
-		InputA:           Input(day),
 		SolutionA: func(lines []string) int {
 			var left []int
 			var right []int
@@ -38,9 +38,7 @@ func NewPuzzle_01() *types.Puzzle {
 
 		},
 
-		ExampleB:         Example(day),
 		ExampleBExpected: 31,
-		InputB:           Input(day),
 		SolutionB: func(lines []string) int {
 			var left []int
 			var right []int

@@ -66,9 +66,9 @@ func NewPuzzle_05() *types.Puzzle {
 	_ = parseLine
 
 	return &types.Puzzle{
-		ExampleA:         Example(day),
+		Example:          Example(day),
 		ExampleAExpected: 143,
-		InputA:           Input(day),
+		Input:            Input(day),
 		SolutionA: func(lines []string) int {
 			rules := make(map[int][]int)
 			lo.ForEach(lines, func(line string, _ int) {
@@ -86,9 +86,7 @@ func NewPuzzle_05() *types.Puzzle {
 			return sum
 		},
 
-		ExampleB:         Example(day),
 		ExampleBExpected: 123,
-		InputB:           Input(day),
 		SolutionB: func(lines []string) int {
 			rules := make(map[int][]int)
 			fmt.Println("______")

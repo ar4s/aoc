@@ -59,9 +59,9 @@ func NewPuzzle_06() *types.Puzzle {
 	}
 
 	return &types.Puzzle{
-		ExampleA:         Example(day),
+		Example:          Example(day),
 		ExampleAExpected: 41,
-		InputA:           Input(day),
+		Input:            Input(day),
 		SolutionA: func(lines []string) int {
 			pos := findStart(lines)
 			maxIndex := len(lines[0])
@@ -90,9 +90,7 @@ func NewPuzzle_06() *types.Puzzle {
 			return len(lo.Uniq(visited))
 		},
 
-		ExampleB:         Example(day),
 		ExampleBExpected: 123,
-		InputB:           Input(day),
 		SolutionB: func(lines []string) int {
 
 			return -1

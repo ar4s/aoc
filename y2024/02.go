@@ -58,9 +58,9 @@ func NewPuzzle_02() *types.Puzzle {
 		return errors
 	}
 	return &types.Puzzle{
-		ExampleA:         Example(day),
+		Example:          Example(day),
 		ExampleAExpected: 2,
-		InputA:           Input(day),
+		Input:            Input(day),
 		SolutionA: func(lines []string) int {
 			ok := 0
 			parsed := lo.Map(lines, func(line string, _ int) []int {
@@ -76,9 +76,7 @@ func NewPuzzle_02() *types.Puzzle {
 			return ok
 		},
 
-		ExampleB:         Example(day),
 		ExampleBExpected: 4,
-		InputB:           Input(day),
 		SolutionB: func(lines []string) int {
 			ok := 0
 			parsed := lo.Map(lines, func(line string, _ int) []int {

@@ -16,9 +16,9 @@ type Line struct {
 	Chunks []int
 }
 
-type Operation func(int, int) int
+type BinOperation func(int, int) int
 
-func calc(line Line, operations []Operation, value int, index int) bool {
+func calc(line Line, operations []BinOperation, value int, index int) bool {
 	if index == len(line.Chunks) {
 		return value == line.Target
 	}
@@ -68,12 +68,12 @@ func NewPuzzle_07() *types.Puzzle {
 		return a*(int(math.Pow10(int(l)+1))) + b
 	}
 
-	var aimToTargetRec = func(line Line, operations []Operation) bool {
+	var aimToTargetRec = func(line Line, operations []BinOperation) bool {
 		r := calc(line, operations, line.Chunks[0], 1)
 		return r
 	}
 
-	var aimToTarget = func(line Line, operations []Operation) int {
+	var aimToTarget = func(line Line, operations []BinOperation) int {
 		permutationSize := len(line.Chunks) - 1
 		permutations := iterium.Product(operations, permutationSize)
 		for {
@@ -98,14 +98,15 @@ func NewPuzzle_07() *types.Puzzle {
 	_ = aimToTarget
 
 	return &types.Puzzle{
-		ExampleA:         Example(day),
+		Example: Example(day),
+		Input:   Input(day),
+
 		ExampleAExpected: 3749,
-		InputA:           Input(day),
 		SolutionA: func(lines []string) int {
 			parsed := lo.Map(lines, func(line string, _ int) Line {
 				return parseLine(line)
 			})
-			operations := []Operation{add, mul}
+			operations := []BinOperation{add, mul}
 
 			sum := 0
 			for _, line := range parsed {
@@ -116,14 +117,12 @@ func NewPuzzle_07() *types.Puzzle {
 			return sum
 		},
 
-		ExampleB:         Example(day),
 		ExampleBExpected: 11387,
-		InputB:           Input(day),
 		SolutionB: func(lines []string) int {
 			parsed := lo.Map(lines, func(line string, _ int) Line {
 				return parseLine(line)
 			})
-			operations := []Operation{add, mul, concat}
+			operations := []BinOperation{add, mul, concat}
 
 			sum := 0
 			for _, line := range parsed {
