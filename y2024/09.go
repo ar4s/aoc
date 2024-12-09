@@ -13,8 +13,8 @@ import (
 )
 
 type Node struct {
-	ID    int
-	Value int
+	ID   int
+	Size int
 }
 
 var isFreeSpace = func(n Node) bool {
@@ -53,18 +53,21 @@ func (n Nodes) Clone() Nodes {
 }
 
 func (n Node) Clone() Node {
-	return Node{ID: n.ID, Value: n.Value}
+	return Node{ID: n.ID, Size: n.Size}
 }
 
-func findFreeSpace(nodes Nodes, size int, lessThan int) int {
+func findFreeSpace(nodes Nodes, size int, maxIndex int) int {
 	start := -1
 
 	for i, n := range nodes {
+		if i > maxIndex {
+			return -1
+		}
 		if n.IsFreeSpace() && start == -1 {
 			start = i
 		}
 		if !n.IsFreeSpace() && start != -1 {
-			if i-start >= size && start < lessThan {
+			if i-start >= size {
 				return start
 			} else {
 				start = -1
@@ -91,13 +94,13 @@ type FindBlockResult struct {
 func findLastBlock(nodes Nodes, offsetFromEnd int) FindBlockResult {
 	start := findLastFileIndex(nodes, offsetFromEnd)
 	if start == -1 {
-		return FindBlockResult{Node: Node{ID: -1, Value: -1}, Start: -1}
+		return FindBlockResult{Node: Node{ID: -1, Size: -1}, Start: -1}
 	}
 	lastNode := nodes[start]
 	if lastNode.IsFreeSpace() {
-		return FindBlockResult{Node: Node{ID: -1, Value: -1}, Start: -1}
+		return FindBlockResult{Node: Node{ID: -1, Size: -1}, Start: -1}
 	}
-	r := FindBlockResult{Node: lastNode, Start: start - lastNode.Value + 1}
+	r := FindBlockResult{Node: lastNode, Start: start - lastNode.Size + 1}
 	return r
 }
 
@@ -105,8 +108,8 @@ func NewPuzzle_09() *types.Puzzle {
 	day := 9
 
 	FreeSpace := Node{
-		ID:    -1,
-		Value: -1,
+		ID:   -1,
+		Size: -1,
 	}
 
 	_ = isFreeSpace
@@ -126,8 +129,8 @@ func NewPuzzle_09() *types.Puzzle {
 		for i, c := range input {
 			if i%2 == 0 {
 				t := lo.Repeat(c, Node{
-					ID:    order,
-					Value: c,
+					ID:   order,
+					Size: c,
 				})
 				r = append(r, t...)
 				order++
@@ -166,76 +169,67 @@ func NewPuzzle_09() *types.Puzzle {
 
 		ExampleAExpected: 1928,
 		SolutionA: func(lines []string) int {
+			return 0
 			// only one line
-			parsed := parseLine(lines[0])
-			l := generateLayout(parsed)
+			// parsed := parseLine(lines[0])
+			// l := generateLayout(parsed)
 
-			//renderLayout(l)
+			// //renderLayout(l)
 
-			endIndex := len(l) - 1
-			for i := 0; i <= len(l)-1 || i == endIndex; i++ {
-				if endIndex == 0 || i == endIndex {
-					break
-				}
-				if !l[i].IsFreeSpace() {
-					continue
-				}
-				for j := endIndex; j >= 0; j-- {
-					if !l[j].IsFreeSpace() {
-						endIndex = j
-						break
-					}
-				}
-				l.Swap(i, endIndex)
-				endIndex--
-			}
+			// endIndex := len(l) - 1
+			// for i := 0; i <= len(l)-1 || i == endIndex; i++ {
+			// 	if endIndex == 0 || i == endIndex {
+			// 		break
+			// 	}
+			// 	if !l[i].IsFreeSpace() {
+			// 		continue
+			// 	}
+			// 	for j := endIndex; j >= 0; j-- {
+			// 		if !l[j].IsFreeSpace() {
+			// 			endIndex = j
+			// 			break
+			// 		}
+			// 	}
+			// 	l.Swap(i, endIndex)
+			// 	endIndex--
+			// }
 
-			return l.Checksum()
+			// return l.Checksum()
 		},
 
-		ExampleBExpected: 2858,
+		ExampleBExpected: 8193,
 		SolutionB: func(lines []string) int {
 			fmt.Println("Part 2")
 			parsed := parseLine(lines[0])
-			l := generateLayout(parsed)
-			maxIndex := len(l)
+			memory := generateLayout(parsed)
+			maxIndex := len(memory)
 			fmt.Printf("max index: %d\n", maxIndex)
 			lastFileIndexFromEnd := 0
 			wasMoved := []int{}
-			prevNode := Node{ID: 99999999999999999, Value: -1}
-			//renderLayout(l)
 			for {
 				var last FindBlockResult
 				for {
-					last = findLastBlock(l, lastFileIndexFromEnd)
-					if !slices.Contains(wasMoved, last.Node.ID) && prevNode.ID > last.Node.ID {
+					last = findLastBlock(memory, lastFileIndexFromEnd)
+					lastFileIndexFromEnd = maxIndex - last.Start
+					if !slices.Contains(wasMoved, last.Node.ID) {
 						break
 					}
-					lastFileIndexFromEnd = maxIndex - last.Start
 				}
 				if last.Node.IsFreeSpace() {
 					break
 				}
-
-				startFreeSpace := findFreeSpace(l, last.Node.Value, last.Start-1)
-				if startFreeSpace == -1 {
-					lastFileIndexFromEnd = maxIndex - last.Start
-					continue
-
-				}
-				prevNode = last.Node
-				for offset := 0; offset <= last.Node.Value-1; offset++ {
-					l.Swap(last.Start+offset, startFreeSpace+offset)
-					lastFileIndexFromEnd = maxIndex - last.Start + offset
-				}
 				wasMoved = append(wasMoved, last.Node.ID)
+
+				startFreeSpace := findFreeSpace(memory, last.Node.Size, last.Start)
+				if startFreeSpace == -1 {
+					continue
+				}
+
+				for offset := 0; offset <= last.Node.Size-1; offset++ {
+					memory.Swap(last.Start+offset, startFreeSpace+offset)
+				}
 			}
-			//renderLayout(l)
-			return l.Checksum()
+			return memory.Checksum()
 		},
 	}
 }
-
-// Part 2 wrong guesses
-// 7904766675787
-// 7842790009690

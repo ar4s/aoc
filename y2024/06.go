@@ -92,8 +92,32 @@ func NewPuzzle_06() *types.Puzzle {
 
 		ExampleBExpected: 123,
 		SolutionB: func(lines []string) int {
+			pos := findStart(lines)
+			maxIndex := len(lines[0])
+			_ = pos
+			if pos == nil {
+				panic("Start position not found")
+			}
+			dir := DIR_UP
+			visited := []Cord{*pos}
+			for {
+				nextPos := getNextPos(*pos, dir)
+				line, err := getLine(nextPos, dir, lines)
+				if err != nil {
+					break
+				}
+				if nextPos.X == maxIndex || nextPos.Y == maxIndex {
+					break
+				}
+				if isObstacle(line, nextPos) {
+					dir = rotate(dir)
+					continue
+				}
+				pos = &nextPos
+				visited = append(visited, *pos)
+			}
 
-			return -1
+			return len(lo.Uniq(visited))
 		},
 	}
 }
