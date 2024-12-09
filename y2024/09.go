@@ -16,18 +16,11 @@ type Node struct {
 	Value int
 }
 
-type NodeV2 struct {
-	ID    int
-	Value int
-	Size  int
-}
-
 var isFreeSpace = func(n Node) bool {
 	return n.ID == -1
 }
 
 type Nodes []Node
-type NodesV2 []NodeV2
 
 func (n Nodes) Len() int {
 	return len(n)
@@ -36,15 +29,8 @@ func (n Nodes) Len() int {
 func (n Node) IsFreeSpace() bool {
 	return n.ID == -1
 }
-func (n NodeV2) IsFreeSpace() bool {
-	return n.ID == -1
-}
 
 func (n Nodes) Swap(i, j int) {
-	n[i], n[j] = n[j], n[i]
-}
-
-func (n NodesV2) Swap(i, j int) {
 	n[i], n[j] = n[j], n[i]
 }
 
@@ -59,11 +45,73 @@ func (n Nodes) Checksum() int {
 	return sum
 }
 
+func (n Nodes) Clone() Nodes {
+	return lo.Map(n, func(i Node, _ int) Node {
+		return i.Clone()
+	})
+}
+
 func (n Node) Clone() Node {
 	return Node{ID: n.ID, Value: n.Value}
 }
-func (n NodeV2) Clone() NodeV2 {
-	return NodeV2{ID: n.ID, Value: n.Value, Size: n.Size}
+
+func findFreeSpace(nodes Nodes, size int, lessThan int) int {
+	start := -1
+
+	for i, n := range nodes {
+		if n.IsFreeSpace() && start == -1 {
+			start = i
+
+		}
+		if !n.IsFreeSpace() && start != -1 {
+			if i-start >= size && start < lessThan {
+				return start
+			} else {
+				start = -1
+			}
+		}
+	}
+	return -1
+}
+
+func findLastFileIndex(nodes Nodes, offset int) int {
+	for i := len(nodes) - (1 + offset); i >= 0; i-- {
+		if !nodes[i].IsFreeSpace() {
+			return i
+		}
+	}
+	return -1
+}
+
+type FindBlockResult struct {
+	Node  Node
+	Start int
+}
+
+func findLastBlock(nodes Nodes, offset int) FindBlockResult {
+	start := findLastFileIndex(nodes, offset)
+	lastNode := nodes[start]
+	fmt.Println(nodes[start])
+	fileId := nodes[start].ID
+	for i := start; i >= 0; i-- {
+		if nodes[i].IsFreeSpace() {
+			continue
+		}
+		if !nodes[i].IsFreeSpace() && fileId == -1 {
+			fileId = nodes[i].ID
+		}
+		if !nodes[i].IsFreeSpace() && fileId != nodes[i].ID {
+			fmt.Println(">>> change", fileId, nodes[i].ID)
+			return FindBlockResult{
+				Node:  lastNode,
+				Start: i + lastNode.Value - 1,
+			}
+		}
+	}
+	return FindBlockResult{
+		Node:  Node{ID: -1, Value: -1},
+		Start: -1,
+	}
 }
 
 func NewPuzzle_09() *types.Puzzle {
@@ -103,27 +151,7 @@ func NewPuzzle_09() *types.Puzzle {
 		}
 		return r
 	}
-	var generateLayoutV2 = func(input []int) NodesV2 {
-		r := NodesV2{}
-		order := 0
-		for i, c := range input {
-			if i%2 == 0 {
-				r = append(r, NodeV2{
-					ID:    order,
-					Value: c,
-					Size:  c,
-				})
-				order++
-				continue
-			}
-			r = append(r, NodeV2{
-				ID:    -1,
-				Value: -1,
-				Size:  c,
-			})
-		}
-		return r
-	}
+
 	var renderLayout = func(nodes Nodes) {
 		for _, n := range nodes {
 			if isFreeSpace(n) {
@@ -135,17 +163,6 @@ func NewPuzzle_09() *types.Puzzle {
 		println("")
 	}
 	_ = renderLayout
-	var renderLayoutV2 = func(nodes NodesV2) {
-		for _, n := range nodes {
-			if n.IsFreeSpace() {
-				fmt.Print(strings.Repeat(".", n.Size))
-				continue
-			}
-			fmt.Print(strings.Repeat(strconv.Itoa(n.ID), n.Size))
-
-		}
-		println("")
-	}
 
 	return &types.Puzzle{
 		Example: Example(day),
@@ -185,51 +202,127 @@ func NewPuzzle_09() *types.Puzzle {
 		SolutionB: func(lines []string) int {
 			fmt.Println("Part 2")
 			parsed := parseLine(lines[0])
-			l := generateLayoutV2(parsed)
-			renderLayoutV2(l)
+			l := generateLayout(parsed)
 
-			endIndex := len(l) - 1
-			_ = endIndex
-			i := 0
-		outer:
+			i := len(l) - 1
+
 			for {
-				if i >= len(l) {
+				if i == 0 {
 					break
 				}
-				if !l[i].IsFreeSpace() {
+				i--
+			}
+
+			// renderLayout(l)
+			// var freeSpaceAvailable = func(i int, nodes Nodes) int {
+			// 	for x, y := range nodes[i:] {
+			// 		if !y.IsFreeSpace() {
+			// 			return x
+			// 		}
+			// 	}
+			// 	return 0
+			// }
+			// endIndex := len(l) - 1
+			// i := 0
+			//			for i := 0; i < len(l); i++ {
+			// 	if l[i].IsFreeSpace() {
+			// 		j := len(l) - 1
+			// 		for l[i].Value > 0 && j > i {
+			// 			if !l[j].IsFreeSpace() && l[j].Value <= l[i].Value {
+			// 				newLayout = append(newLayout, l[j])
+			// 				l[i].Value -= l[j].Value
+			// 				l[j].ID = -1
+			// 				j = len(l) - 1
+			// 			}
+			// 			j--
+			// 		}
+
+			// 		// If gap still exists, reflect it in reduced
+			// 		if l[i].IsFreeSpace() {
+			// 			newLayout = append(newLayout, l[i])
+			// 		}
+			// 	} else if l[i].Value != 0 {
+			// 	}
+			// }
+			// for {
+			// 	if i >= len(l)-1 {
+			// 		break
+			// 	}
+
+			// 	if endIndex == 0 || i == endIndex {
+			// 		break
+			// 	}
+			// 	if !l[i].IsFreeSpace() {
+			// 		i++
+			// 		continue
+			// 	}
+			// 	freeSpaceSize := freeSpaceAvailable(i, l)
+
+			// 	fmt.Println("freeSpace", freeSpaceSize)
+			// 	for j := endIndex; j >= 0; j-- {
+			// 		if !l[j].IsFreeSpace() && freeSpaceSize >= l[j].Value {
+			// 			org := l[j].Clone()
+			// 			fmt.Println("!!!", j, freeSpaceSize, org.Value, org.ID)
+			// 			for x := 0; x <= org.Value-1; x++ {
+			// 				fmt.Println("???")
+			// 				l.Swap(i, j-x)
+			// 				i++
+			// 				endIndex--
+			// 			}
+			// 			break
+			// 		}
+			// 	}
+			// 	renderLayout(l)
+			// 	// l.Swap(i, endIndex)
+			// 	// endIndex--
+			// 	//todo
+			// 	if i >= 1 {
+			// 		break
+			// 	}
+			// 	i++
+			// }
+			i = 0
+			// orig := l.Clone()
+			maxIndex := len(l)
+			lastFileIndexFromEnd := 0
+			wasMoved := []int{}
+			for {
+				if i == 5 {
+					break
+				}
+
+				fmt.Println()
+				renderLayout(l)
+				last := findLastBlock(l, lastFileIndexFromEnd)
+				if slices.Contains(wasMoved, last.Node.ID) {
 					i++
 					continue
 				}
+				startFreeSpace := findFreeSpace(l, last.Node.Value, last.Start)
+				fmt.Printf(">!!!!!!!!! last %+v %+v %+v\n", last.Node, last.Start, startFreeSpace)
 
-				for j := endIndex; j >= 0; j-- {
-					if !l[j].IsFreeSpace() && l[i].Size >= l[j].Size {
-						endIndex = j
-						v := l[j].Clone()
-						x := l[i].Clone()
-						diff := x.Size - v.Size
-						fmt.Println(v, x, diff)
-						l[i] = v
-						l[j] = x
-
-						if diff != 0 {
-							l = slices.Insert(l, i+1, NodeV2{
-								ID:    -1,
-								Value: -1,
-								Size:  x.Size - v.Size,
-							})
-							i += 2
-						}
-						renderLayoutV2(l)
-						continue outer
-					}
+				if startFreeSpace == -1 {
+					i++
+					lastFileIndexFromEnd += maxIndex - last.Start
+					continue
 				}
+				if last.Node.IsFreeSpace() && startFreeSpace == -1 {
+					break
+				}
+				fmt.Printf("last %+v %+v\n", last, startFreeSpace)
+				for offset := 0; offset <= last.Node.Value-1; offset++ {
+					l.Swap(last.Start+offset, startFreeSpace+offset)
+					lastFileIndexFromEnd = maxIndex - last.Start + offset
+					fmt.Println("!!!! lastFileIndex", lastFileIndexFromEnd)
+				}
+				wasMoved = append(wasMoved, last.Node.ID)
 				i++
+
 			}
 
-			renderLayoutV2(l)
-			// tmp := []int{1, 2, 3, 4, 5}
-			// fmt.Println(slices.Insert(tmp, 1, 0))
-			return 2858
+			renderLayout(l)
+
+			return l.Checksum()
 		},
 	}
 }
