@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 
-	"github.com/ar4s/aoc/types"
-	"github.com/ar4s/aoc/y2024"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
+
+	"github.com/ar4s/aoc/types"
+	"github.com/ar4s/aoc/y2024"
 )
 
 func runExamples(puzzle *types.Puzzle) {
@@ -55,5 +56,5 @@ func runProblems(puzzle *types.Puzzle) {
 func main() {
 	puzzle := y2024.NewPuzzle_09()
 	runExamples(puzzle)
-	// runProblems(puzzle)
+	runProblems(puzzle)
 }
