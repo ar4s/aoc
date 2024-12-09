@@ -53,7 +53,7 @@ func runProblems(puzzle *types.Puzzle) {
 }
 
 func main() {
-	puzzle := y2024.NewPuzzle_08()
+	puzzle := y2024.NewPuzzle_09()
 	runExamples(puzzle)
-	runProblems(puzzle)
+	// runProblems(puzzle)
 }
