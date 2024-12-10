@@ -9,51 +9,41 @@ import (
 	"github.com/samber/lo"
 )
 
-type Cord struct {
-	X int
-	Y int
-}
-
-var DIR_UP Cord = Cord{X: 0, Y: -1}
-var DIR_DOWN Cord = Cord{X: 0, Y: 1}
-var DIR_LEFT Cord = Cord{X: -1, Y: 0}
-var DIR_RIGHT Cord = Cord{X: 1, Y: 0}
-
 func NewPuzzle_06() *types.Puzzle {
 	day := 6
 
-	var findStart = func(lines []string) *Cord {
+	var findStart = func(lines []string) *types.Cord2D {
 		for y, line := range lines {
 			x := strings.Index(line, "^")
 			if x != -1 {
-				return &Cord{X: x, Y: y}
+				return &types.Cord2D{X: x, Y: y}
 			}
 		}
 		return nil
 	}
 
-	var getNextPos = func(pos, dir Cord) Cord {
-		return Cord{X: pos.X + dir.X, Y: pos.Y + dir.Y}
+	var getNextPos = func(pos, dir types.Cord2D) types.Cord2D {
+		return types.Cord2D{X: pos.X + dir.X, Y: pos.Y + dir.Y}
 	}
-	var getLine = func(currPos, currDir Cord, lines []string) (string, error) {
+	var getLine = func(currPos, currDir types.Cord2D, lines []string) (string, error) {
 		if currPos.Y >= len(lines) {
 			return "", fmt.Errorf("MAX")
 		}
 		return lines[currPos.Y], nil
 	}
-	var isObstacle = func(line string, pos Cord) bool {
+	var isObstacle = func(line string, pos types.Cord2D) bool {
 		return line[pos.X] == '#'
 	}
-	var rotate = func(dir Cord) Cord {
+	var rotate = func(dir types.Cord2D) types.Cord2D {
 		switch dir {
-		case DIR_UP:
-			return DIR_RIGHT
-		case DIR_RIGHT:
-			return DIR_DOWN
-		case DIR_DOWN:
-			return DIR_LEFT
-		case DIR_LEFT:
-			return DIR_UP
+		case types.DIR_UP:
+			return types.DIR_RIGHT
+		case types.DIR_RIGHT:
+			return types.DIR_DOWN
+		case types.DIR_DOWN:
+			return types.DIR_LEFT
+		case types.DIR_LEFT:
+			return types.DIR_UP
 		}
 		panic("Is not exeustive")
 	}
@@ -69,8 +59,8 @@ func NewPuzzle_06() *types.Puzzle {
 			if pos == nil {
 				panic("Start position not found")
 			}
-			dir := DIR_UP
-			visited := []Cord{*pos}
+			dir := types.DIR_UP
+			visited := []types.Cord2D{*pos}
 			for {
 				nextPos := getNextPos(*pos, dir)
 				line, err := getLine(nextPos, dir, lines)
@@ -98,8 +88,8 @@ func NewPuzzle_06() *types.Puzzle {
 			if pos == nil {
 				panic("Start position not found")
 			}
-			dir := DIR_UP
-			visited := []Cord{*pos}
+			dir := types.DIR_UP
+			visited := []types.Cord2D{*pos}
 			for {
 				nextPos := getNextPos(*pos, dir)
 				line, err := getLine(nextPos, dir, lines)
