@@ -35,15 +35,15 @@ func findStartingPoints(m TrailPointsMap) []TrailPoint {
 	return r
 }
 
-func getNextPoint(dir types.Cord2D, f TrailPoint, m TrailPointsMap) (TrailPoint, error) {
-	n := f.Cord2D().Add(dir)
+func getNextPoint(dir types.Direction2D, f TrailPoint, m TrailPointsMap) (TrailPoint, error) {
+	n := f.Cord2D().ApplyDirection(dir)
 	if n.X < 0 || n.Y < 0 {
 		return TrailPoint{}, fmt.Errorf("out of bound")
 	}
 	return m[n], nil
 }
 
-func traverse(start TrailPoint, dir types.Cord2D, m TrailPointsMap, level int) ([]TrailPoint, error) {
+func traverse(start TrailPoint, dir types.Direction2D, m TrailPointsMap, level int) ([]TrailPoint, error) {
 	if level > 9 {
 		return []TrailPoint{}, fmt.Errorf("reached limit")
 	}
