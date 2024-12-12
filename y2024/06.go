@@ -70,12 +70,12 @@ func parseInput(lines []string) (Map, types.Cord2D) {
 	var start types.Cord2D
 	for y, line := range lines {
 		for x, c := range line {
-			if c == rune(OBSTACLE) {
+			switch MapItem(c) {
+			case OBSTACLE:
 				m[types.Cord2D{
 					X: x, Y: y,
 				}] = OBSTACLE
-			}
-			if c == START {
+			case START:
 				start = types.Cord2D{
 					X: x, Y: y,
 				}
@@ -146,7 +146,6 @@ func NewPuzzle_06() *types.Puzzle {
 			}
 			loops := 0
 			for _, v := range lo.Uniq(visited) {
-				_ = v
 				var obstaclePredicate = func(c types.Cord2D) bool {
 					return defaultPredicate(c) || v == c
 				}
