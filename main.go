@@ -54,7 +54,7 @@ func runProblems(puzzle *types.Puzzle) {
 }
 
 func main() {
-	puzzle := y2024.NewPuzzle_12()
+	puzzle := y2024.NewPuzzle_17()
 	runExamples(puzzle)
 	// runProblems(puzzle)
 }
